@@ -19,7 +19,7 @@ async def process_cart(message: Message, state: FSMContext):
 
     if len(cart_data) == 0:
 
-        await message.answer('Ваша корзина пуста.')
+        await message.answer('Your shopping cart is empty.')
 
     else:
 
@@ -45,7 +45,7 @@ async def process_cart(message: Message, state: FSMContext):
                     data['products'][idx] = [title, price, count_in_cart]
 
                 markup = product_markup(idx, count_in_cart)
-                text = f'<b>{title}</b>\n\n{body}\n\nЦена: {price}₽.'
+                text = f'<b>{title}</b>\n\n{body}\n\nPrice: ${price}'
 
                 await message.answer_photo(photo=image,
                                            caption=text,
@@ -53,9 +53,9 @@ async def process_cart(message: Message, state: FSMContext):
 
         if order_cost != 0:
             markup = ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
-            markup.add('📦 Оформить заказ')
+            markup.add('📦 Checkout')
 
-            await message.answer('Перейти к оформлению?',
+            await message.answer('Go to checkout?',
                                  reply_markup=markup)
 
 
@@ -77,7 +77,7 @@ async def product_callback_handler(query: CallbackQuery, callback_data: dict, st
 
             else:
 
-                await query.answer('Количество - ' + data['products'][idx][2])
+                await query.answer('Quantity - ' + data['products'][idx][2])
 
     else:
 
@@ -107,7 +107,7 @@ async def product_callback_handler(query: CallbackQuery, callback_data: dict, st
                     await query.message.edit_reply_markup(product_markup(idx, count_in_cart))
 
 
-@dp.message_handler(IsUser(), text='📦 Оформить заказ')
+@dp.message_handler(IsUser(), text='📦 Checkout')
 async def process_checkout(message: Message, state: FSMContext):
 
     await CheckoutState.check_cart.set()
@@ -123,16 +123,16 @@ async def checkout(message, state):
         for title, price, count_in_cart in data['products'].values():
 
             tp = count_in_cart * price
-            answer += f'<b>{title}</b> * {count_in_cart}шт. = {tp}₽\n'
+            answer += f'<b>{title}</b> * {count_in_cart}. = {tp}₽\n'
             total_price += tp
 
-    await message.answer(f'{answer}\nОбщая сумма заказа: {total_price}₽.',
+    await message.answer(f'{answer}\nThe total amount of the order: ${total_price}.',
                          reply_markup=check_markup())
 
 
 @dp.message_handler(IsUser(), lambda message: message.text not in [all_right_message, back_message], state=CheckoutState.check_cart)
 async def process_check_cart_invalid(message: Message):
-    await message.reply('Такого варианта не было.')
+    await message.reply('There was no such option.')
 
 
 @dp.message_handler(IsUser(), text=back_message, state=CheckoutState.check_cart)
@@ -144,7 +144,7 @@ async def process_check_cart_back(message: Message, state: FSMContext):
 @dp.message_handler(IsUser(), text=all_right_message, state=CheckoutState.check_cart)
 async def process_check_cart_all_right(message: Message, state: FSMContext):
     await CheckoutState.next()
-    await message.answer('Укажите свое имя.',
+    await message.answer('Enter your name.',
                          reply_markup=back_markup())
 
 
@@ -169,7 +169,7 @@ async def process_name(message: Message, state: FSMContext):
         else:
 
             await CheckoutState.next()
-            await message.answer('Укажите свой адрес места жительства.',
+            await message.answer('Enter your residential address.',
                                  reply_markup=back_markup())
 
 
@@ -178,7 +178,7 @@ async def process_address_back(message: Message, state: FSMContext):
 
     async with state.proxy() as data:
 
-        await message.answer('Изменить имя с <b>' + data['name'] + '</b>?',
+        await message.answer('Change name from <b>' + data['name'] + '</b>?',
                              reply_markup=back_markup())
 
     await CheckoutState.name.set()
@@ -196,13 +196,13 @@ async def process_address(message: Message, state: FSMContext):
 
 async def confirm(message):
 
-    await message.answer('Убедитесь, что все правильно оформлено и подтвердите заказ.',
+    await message.answer('Make sure everything is correct and confirm the order.',
                          reply_markup=confirm_markup())
 
 
 @dp.message_handler(IsUser(), lambda message: message.text not in [confirm_message, back_message], state=CheckoutState.confirm)
 async def process_confirm_invalid(message: Message):
-    await message.reply('Такого варианта не было.')
+    await message.reply('There was no such option.')
 
 
 @dp.message_handler(IsUser(), text=back_message, state=CheckoutState.confirm)
@@ -211,7 +211,7 @@ async def process_confirm(message: Message, state: FSMContext):
     await CheckoutState.address.set()
 
     async with state.proxy() as data:
-        await message.answer('Изменить адрес с <b>' + data['address'] + '</b>?',
+        await message.answer('Change address from <b>' + data['address'] + '</b>?',
                              reply_markup=back_markup())
 
 
@@ -237,11 +237,11 @@ async def process_confirm(message: Message, state: FSMContext):
 
             db.query('DELETE FROM cart WHERE cid=?', (cid,))
 
-            await message.answer('Ок! Ваш заказ уже в пути 🚀\nИмя: <b>' + data['name'] + '</b>\nАдрес: <b>' + data['address'] + '</b>',
+            await message.answer('OK! Your order is on the way 🚀\nName: <b>' + data['name'] + '</b>\nAddress: <b>' + data['address'] + '</b>',
                                  reply_markup=markup)
     else:
 
-        await message.answer('У вас недостаточно денег на счете. Пополните баланс!',
+        await message.answer('You don\'t have enough money in your account. Top up your balance!',
                              reply_markup=markup)
 
     await state.finish()

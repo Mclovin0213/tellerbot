@@ -11,7 +11,7 @@ from loader import dp, db
 @dp.message_handler(commands='sos')
 async def cmd_sos(message: Message):
     await SosState.question.set()
-    await message.answer('В чем суть проблемы? Опишите как можно детальнее и администратор обязательно вам ответит.', reply_markup=ReplyKeyboardRemove())
+    await message.answer('What is the essence of the problem? Describe in as much detail as possible and the administrator will definitely respond.', reply_markup=ReplyKeyboardRemove())
 
 
 @dp.message_handler(state=SosState.question)
@@ -19,18 +19,18 @@ async def process_question(message: Message, state: FSMContext):
     async with state.proxy() as data:
         data['question'] = message.text
 
-    await message.answer('Убедитесь, что все верно.', reply_markup=submit_markup())
+    await message.answer('Make sure everything is correct.', reply_markup=submit_markup())
     await SosState.next()
 
 
 @dp.message_handler(lambda message: message.text not in [cancel_message, all_right_message], state=SosState.submit)
 async def process_price_invalid(message: Message):
-    await message.answer('Такого варианта не было.')
+    await message.answer('There was no such option.')
 
 
 @dp.message_handler(text=cancel_message, state=SosState.submit)
 async def process_cancel(message: Message, state: FSMContext):
-    await message.answer('Отменено!', reply_markup=ReplyKeyboardRemove())
+    await message.answer('Canceled!', reply_markup=ReplyKeyboardRemove())
     await state.finish()
 
 
@@ -45,10 +45,10 @@ async def process_submit(message: Message, state: FSMContext):
             db.query('INSERT INTO questions VALUES (?, ?)',
                      (cid, data['question']))
 
-        await message.answer('Отправлено!', reply_markup=ReplyKeyboardRemove())
+        await message.answer('Sent!', reply_markup=ReplyKeyboardRemove())
 
     else:
 
-        await message.answer('Превышен лимит на количество задаваемых вопросов.', reply_markup=ReplyKeyboardRemove())
+        await message.answer('The limit on the number of questions asked has been exceeded.', reply_markup=ReplyKeyboardRemove())
 
     await state.finish()

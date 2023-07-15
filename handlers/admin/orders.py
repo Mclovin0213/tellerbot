@@ -9,7 +9,7 @@ async def process_orders(message: Message):
     
     orders = db.fetchall('SELECT * FROM orders')
     
-    if len(orders) == 0: await message.answer('У вас нет заказов.')
+    if len(orders) == 0: await message.answer('You have no orders.')
     else: await order_answer(message, orders)
 
 async def order_answer(message, orders):
@@ -17,6 +17,6 @@ async def order_answer(message, orders):
     res = ''
 
     for order in orders:
-        res += f'Заказ <b>№{order[3]}</b>\n\n'
+        res += f'Order <b>№{order[3]}</b>\n\n'
 
     await message.answer(res)

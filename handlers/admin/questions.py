@@ -20,7 +20,7 @@ async def process_questions(message: Message):
 
     if len(questions) == 0:
 
-        await message.answer('Нет вопросов.')
+        await message.answer('No questions.')
 
     else:
 
@@ -28,7 +28,7 @@ async def process_questions(message: Message):
 
             markup = InlineKeyboardMarkup()
             markup.add(InlineKeyboardButton(
-                'Ответить', callback_data=question_cb.new(cid=cid, action='answer')))
+                'Answer', callback_data=question_cb.new(cid=cid, action='answer')))
 
             await message.answer(question, reply_markup=markup)
 
@@ -39,7 +39,7 @@ async def process_answer(query: CallbackQuery, callback_data: dict, state: FSMCo
     async with state.proxy() as data:
         data['cid'] = callback_data['cid']
 
-    await query.message.answer('Напиши ответ.', reply_markup=ReplyKeyboardRemove())
+    await query.message.answer('Write an answer.', reply_markup=ReplyKeyboardRemove())
     await AnswerState.answer.set()
 
 
@@ -50,12 +50,12 @@ async def process_submit(message: Message, state: FSMContext):
         data['answer'] = message.text
 
     await AnswerState.next()
-    await message.answer('Убедитесь, что не ошиблись в ответе.', reply_markup=submit_markup())
+    await message.answer('Make sure you don\'t make a mistake in your answer.', reply_markup=submit_markup())
 
 
 @dp.message_handler(IsAdmin(), text=cancel_message, state=AnswerState.submit)
 async def process_send_answer(message: Message, state: FSMContext):
-    await message.answer('Отменено!', reply_markup=ReplyKeyboardRemove())
+    await message.answer('Cancelled!', reply_markup=ReplyKeyboardRemove())
     await state.finish()
 
 
@@ -70,9 +70,9 @@ async def process_send_answer(message: Message, state: FSMContext):
         question = db.fetchone(
             'SELECT question FROM questions WHERE cid=?', (cid,))[0]
         db.query('DELETE FROM questions WHERE cid=?', (cid,))
-        text = f'Вопрос: <b>{question}</b>\n\nОтвет: <b>{answer}</b>'
+        text = f'Question: <b>{question}</b>\n\nAnswer: <b>{answer}</b>'
 
-        await message.answer('Отправлено!', reply_markup=ReplyKeyboardRemove())
+        await message.answer('Sent!', reply_markup=ReplyKeyboardRemove())
         await bot.send_message(cid, text)
 
     await state.finish()

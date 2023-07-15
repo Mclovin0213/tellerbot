@@ -12,7 +12,7 @@ from filters import IsUser
 
 @dp.message_handler(IsUser(), text=catalog)
 async def process_catalog(message: Message):
-    await message.answer('Выберите раздел, чтобы вывести список товаров:',
+    await message.answer('Select a section to display a list of products:',
                          reply_markup=categories_markup())
 
 
@@ -24,7 +24,7 @@ async def category_callback_handler(query: CallbackQuery, callback_data: dict):
     AND product.idx NOT IN (SELECT idx FROM cart WHERE cid = ?)''',
                            (callback_data['id'], query.message.chat.id))
 
-    await query.answer('Все доступные товары.')
+    await query.answer('All available items.')
     await show_products(query.message, products)
 
 
@@ -34,7 +34,7 @@ async def add_product_callback_handler(query: CallbackQuery, callback_data: dict
     db.query('INSERT INTO cart VALUES (?, ?, 1)',
              (query.message.chat.id, callback_data['id']))
 
-    await query.answer('Товар добавлен в корзину!')
+    await query.answer('Product added to cart!')
     await query.message.delete()
 
 
@@ -42,7 +42,7 @@ async def show_products(m, products):
 
     if len(products) == 0:
 
-        await m.answer('Здесь ничего нет 😢')
+        await m.answer('There is nothing here 😢')
 
     else:
 

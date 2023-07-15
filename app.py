@@ -12,8 +12,8 @@ filters.setup(dp)
 
 WEBAPP_HOST = "0.0.0.0"
 WEBAPP_PORT = int(os.environ.get("PORT", 5000))
-user_message = 'Пользователь'
-admin_message = 'Админ'
+user_message = 'User'
+admin_message = 'Admin'
 
 
 @dp.message_handler(commands='start')
@@ -23,17 +23,16 @@ async def cmd_start(message: types.Message):
 
     markup.row(user_message, admin_message)
 
-    await message.answer('''Привет! 👋
+    await message.answer('''
+Hello! 👋
 
-🤖 Я бот-магазин по подаже товаров любой категории.
-    
-🛍️ Чтобы перейти в каталог и выбрать приглянувшиеся товары возпользуйтесь командой /menu.
+🤖 I am a bot shop for selling goods of any category.
 
-💰 Пополнить счет можно через Яндекс.кассу, Сбербанк или Qiwi.
+🛍️ To go to the catalog and choose products you like, use the /menu command.
 
-❓ Возникли вопросы? Не проблема! Команда /sos поможет связаться с админами, которые постараются как можно быстрее откликнуться.
+💰 You can top up your account via Yandex.Checkout, Sberbank or Qiwi.
 
-🤝 Заказать похожего бота? Свяжитесь с разработчиком <a href="https://t.me/NikolaySimakov">Nikolay Simakov</a>, он не кусается)))
+❓ Have any questions? No problem! The /sos command will help you contact the admins who will try to respond as soon as possible.
     ''', reply_markup=markup)
 
 
@@ -44,7 +43,7 @@ async def user_mode(message: types.Message):
     if cid in config.ADMINS:
         config.ADMINS.remove(cid)
 
-    await message.answer('Включен пользовательский режим.', reply_markup=ReplyKeyboardRemove())
+    await message.answer('User mode enabled.', reply_markup=ReplyKeyboardRemove())
 
 
 @dp.message_handler(text=admin_message)
@@ -54,7 +53,7 @@ async def admin_mode(message: types.Message):
     if cid not in config.ADMINS:
         config.ADMINS.append(cid)
 
-    await message.answer('Включен админский режим.', reply_markup=ReplyKeyboardRemove())
+    await message.answer('Admin mode enabled.', reply_markup=ReplyKeyboardRemove())
 
 
 async def on_startup(dp):

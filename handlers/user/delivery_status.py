@@ -9,7 +9,7 @@ async def process_delivery_status(message: Message):
     
     orders = db.fetchall('SELECT * FROM orders WHERE cid=?', (message.chat.id,))
     
-    if len(orders) == 0: await message.answer('У вас нет активных заказов.')
+    if len(orders) == 0: await message.answer('You have no active orders.')
     else: await delivery_status_answer(message, orders)
 
 async def delivery_status_answer(message, orders):
@@ -18,11 +18,11 @@ async def delivery_status_answer(message, orders):
 
     for order in orders:
 
-        res += f'Заказ <b>№{order[3]}</b>'
+        res += f'Order <b>№{order[3]}</b>'
         answer = [
-            ' лежит на складе.',
-            ' уже в пути!',
-            ' прибыл и ждет вас на почте!'
+            ' is in stock.',
+            ' I\'m on the road!',
+            ' arrived and waiting for you in the mail!'
         ]
 
         res += answer[0]
